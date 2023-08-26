@@ -1,0 +1,14 @@
+project : NGN_journal
+
+experiments:
+-   dataset: ['cifar10']
+    arch: ["res18"]
+    seed: 0
+    opt:
+      alg: ['sgdm']
+      ep: [100]
+      lr: [0.01]
+      bs: [128]
+      wd: [0.0005]
+      beta1: [0.9]
+      lr_decay : [True]
