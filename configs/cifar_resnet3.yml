@@ -11,4 +11,4 @@ experiments:
       bs: [128]
       wd: [0.0]
       beta1: [0]
-      lr_decay : [False]
+      lr_decay : [True]

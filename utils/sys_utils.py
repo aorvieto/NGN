@@ -26,7 +26,7 @@ def generate_filename(opt):
     time_str = datetime.now().strftime("%H-%M-%S")
     hyperparameters = {**opt}
     hyperparameters_str = "_".join([f"{k}={v}" for k, v in hyperparameters.items()])
-    filename = f"{hyperparameters_str}_time={time_str}.npy"
+    filename = f"{hyperparameters_str}_time={time_str}"
     return filename
 
 def dict_to_namespace(input_dict):
