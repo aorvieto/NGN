@@ -11,7 +11,7 @@ def run_experiment(use_wandb, gpu, project, dataset, architecture, seed, opt):
     experiment_dir = get_experiment_directory(project, dataset, architecture, opt)
     filename = generate_filename(opt)
     results_path = os.path.join(experiment_dir, filename)
-    results = np.zeros(4)#run_config(use_wandb, gpu, project, dataset, architecture, seed, opt)
+    results = run_config(use_wandb, gpu, project, dataset, architecture, seed, opt)
     torch.save(results,results_path+".pt")
     print(f"Results saved to {results_path}")
     

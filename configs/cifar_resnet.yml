@@ -7,7 +7,7 @@ experiments:
     opt:
       alg: ['ngn']
       ep: [30]
-      lr: [0.3, 0.1, 0.01]
+      lr: [3, 1, 0.3, 0.1]
       bs: [128]
       wd: [0.0]
       beta1: [0]

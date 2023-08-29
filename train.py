@@ -220,9 +220,9 @@ def run_config(use_wandb, gpu, project, dataset, architecture, seed, opt):
 
                     #updating parameters
                     if opt.lr_decay:
-                        sigma_curr = cosine_wa_lr(opt.sigma, iteration, total_steps, 0) 
+                        sigma_curr = cosine_wa_lr(opt.lr, iteration, total_steps, 0) 
                     else:
-                        sigma_curr = opt.sigma
+                        sigma_curr = opt.lr
                     preconditioner = sigma_curr/(1+sigma_curr*norm_avg_grad_squared/(2*loss.item()))
                     results["effective_lr_it"].append(preconditioner)
                     for p_idx, p in enumerate(model.parameters()):
