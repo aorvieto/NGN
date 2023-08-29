@@ -15,18 +15,19 @@ def generate_combinations(params):
     keys, values = zip(*params.items())
     return [dict(zip(keys, v)) for v in itertools.product(*values)]
 
-def get_experiment_directory(project, dataset, model_name, base_path="./"):
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    path = os.path.join('results',base_path, project, date_str, dataset, model_name)
+def get_experiment_directory(project, dataset, architecture, opt, base_path="./"):
+    path = os.path.join('results',base_path, project, dataset, architecture, opt['alg'], 'bs_'+str(opt['bs']), 'ep_'+str(opt['ep']),'wd_'+str(opt['wd']), 'lr_decay_'+str(opt['lr_decay']),'beta1_'+str(opt['beta1']))
     if not os.path.exists(path):
         os.makedirs(path)
     return path
 
 def generate_filename(opt):
     time_str = datetime.now().strftime("%H-%M-%S")
-    hyperparameters = {**opt}
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    exclude_keys = ['alg','bs', 'wd', 'lr_decay', 'ep', 'beta1']
+    hyperparameters = {k: v for k, v in opt.items() if k not in exclude_keys}
     hyperparameters_str = "_".join([f"{k}={v}" for k, v in hyperparameters.items()])
-    filename = f"{hyperparameters_str}_time={time_str}"
+    filename = f"{hyperparameters_str}_{date_str}_time={time_str}"
     return filename
 
 def dict_to_namespace(input_dict):
