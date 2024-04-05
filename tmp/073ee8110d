@@ -1,0 +1,10 @@
+executable = run_job.sh
+arguments = test MPI True 073ee8110d cifar10 res18 20 sgdm 0 128 0.01 True 0.0001 0 0.999 not interesting option xent
+output = runs/073ee8110d.stdout
+error = runs/073ee8110d.stderr
+log = runs/073ee8110d.log
+request_cpus = 1
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

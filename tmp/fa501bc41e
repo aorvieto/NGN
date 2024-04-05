@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_CNN3 true fa501bc41e cifar10 CNN3 200 sgdm 1 1024 0.1 false 0.0 0 0.999 not_interesting_option xent
+output = runs/fa501bc41e.stdout
+error = runs/fa501bc41e.stderr
+log = runs/fa501bc41e.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

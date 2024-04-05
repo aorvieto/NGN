@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 True ad5467cb60 cifar10 res18 30 sgdm 0 128 1 False 0.0 0 0.999 not_interesting_option xent
+output = runs/ad5467cb60.stdout
+error = runs/ad5467cb60.stderr
+log = runs/ad5467cb60.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

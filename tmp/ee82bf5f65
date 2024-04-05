@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_final_no_decay_front true ee82bf5f65 cifar10 res18 50 ngnm 1 128 30 false 0.0 0.0 0.999 not_interesting_option xent
+output = runs/ee82bf5f65.stdout
+error = runs/ee82bf5f65.stderr
+log = runs/ee82bf5f65.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

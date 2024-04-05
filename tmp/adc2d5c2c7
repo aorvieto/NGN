@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_FMNIST_MLP2 true adc2d5c2c7 FMNIST MLP2 5000 sgdm 0 5000 3.0 false 0.0 0 0.999 not_interesting_option xent
+output = runs/adc2d5c2c7.stdout
+error = runs/adc2d5c2c7.stderr
+log = runs/adc2d5c2c7.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

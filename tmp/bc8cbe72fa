@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_final_no_decay_front true bc8cbe72fa cifar10 res18 50 sgdmm 0 128 0.01 false 0.0 0.0 0.999 not_interesting_option xent
+output = runs/bc8cbe72fa.stdout
+error = runs/bc8cbe72fa.stderr
+log = runs/bc8cbe72fa.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 true c7e5cd507b cifar10 res18 30 ngnm 0 128 0.01 true 0.0 0 0.999 not_interesting_option xent
+output = runs/c7e5cd507b.stdout
+error = runs/c7e5cd507b.stderr
+log = runs/c7e5cd507b.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

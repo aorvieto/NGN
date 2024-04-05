@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 True f63b4cc5e9 cifar10 res18 30 sgdm 0 128 1 False 0.0001 0 0.999 not_interesting_option xent
+output = runs/f63b4cc5e9.stdout
+error = runs/f63b4cc5e9.stderr
+log = runs/f63b4cc5e9.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

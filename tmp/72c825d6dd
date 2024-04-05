@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_is_momentum_better_test true 72c825d6dd cifar10 res18 30 sgdm 1 128 0.003 true 0.0 0.0 0.999 not_interesting_option xent
+output = runs/72c825d6dd.stdout
+error = runs/72c825d6dd.stderr
+log = runs/72c825d6dd.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

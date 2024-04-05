@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 true ee215e80a7 cifar10 res18 30 sgdm 0 128 10 false 0.0 0 0.999 not_interesting_option xent
+output = runs/ee215e80a7.stdout
+error = runs/ee215e80a7.stderr
+log = runs/ee215e80a7.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

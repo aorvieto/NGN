@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 true cbbaca1f28 cifar10 res18 30 sgdm 1 128 0.01 false 0.0 0 0.999 not_interesting_option xent
+output = runs/cbbaca1f28.stdout
+error = runs/cbbaca1f28.stderr
+log = runs/cbbaca1f28.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

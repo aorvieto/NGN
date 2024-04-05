@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_svhn_CNN_no_decay_final true d68751daad svhn CNN 50 ngnm 0 512 0.01 false 0.0 0.0 0.999 not_interesting_option xent
+output = runs/d68751daad.stdout
+error = runs/d68751daad.stderr
+log = runs/d68751daad.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

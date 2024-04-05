@@ -1,0 +1,10 @@
+executable = run_imagenet.sh
+arguments = Dec_NGN_imagenet_test2 true f9235c8115 adam 0 0.003 true 0.0 0.9 xent
+output = runs/imagenetf9235c8115.stdout
+error = runs/imagenetf9235c8115.stderr
+log = runs/imagenetf9235c8115.log
+request_cpus = 12
+request_gpus = 4
+request_memory = 50000
+request_disk = 4G
+queue

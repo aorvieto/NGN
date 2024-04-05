@@ -1,0 +1,10 @@
+executable = run_imagenet.sh
+arguments = Dec_NGN_imagenet_test2 true d10366f89f sgdm 0 0.01 false 0.0 0.0 xent
+output = runs/imagenetd10366f89f.stdout
+error = runs/imagenetd10366f89f.stderr
+log = runs/imagenetd10366f89f.log
+request_cpus = 12
+request_gpus = 4
+request_memory = 50000
+request_disk = 4G
+queue

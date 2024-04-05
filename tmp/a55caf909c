@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_final_probably true a55caf909c cifar10 res18 30 adam 2 128 3e-05 true 0.0 0.9 0.999 not_interesting_option xent
+output = runs/a55caf909c.stdout
+error = runs/a55caf909c.stderr
+log = runs/a55caf909c.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

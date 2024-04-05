@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_final_probably true f848f8ad02 cifar10 res18 30 adam 1 256 0.0003 true 0.0 0.9 0.999 not_interesting_option xent
+output = runs/f848f8ad02.stdout
+error = runs/f848f8ad02.stderr
+log = runs/f848f8ad02.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

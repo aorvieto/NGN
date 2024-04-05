@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_final_probably true e2731b290e cifar10 res18 30 ngnm 2 256 10 true 0.0 0.0 0.999 not_interesting_option xent
+output = runs/e2731b290e.stdout
+error = runs/e2731b290e.stderr
+log = runs/e2731b290e.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

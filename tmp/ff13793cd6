@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_step_decay_and_wd true ff13793cd6 cifar10 res18 30 ngnm 0 128 0.1 true 0.0 0.0 0.999 not_interesting_option xent
+output = runs/ff13793cd6.stdout
+error = runs/ff13793cd6.stderr
+log = runs/ff13793cd6.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

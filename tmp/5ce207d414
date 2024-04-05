@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = testMPI2 True 5ce207d414 cifar10 res18 30 sgdm 0 128 0.1 True 0.0 0 0.999 not_interesting_option xent
+output = runs/5ce207d414.stdout
+error = runs/5ce207d414.stderr
+log = runs/5ce207d414.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

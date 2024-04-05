@@ -1,0 +1,10 @@
+executable = run_imagenet.sh
+arguments = Dec_NGN_imagenet_test2 true ff81e61f86 sgdm 0 0.1 true 0.0 0.9 xent
+output = runs/imagenetff81e61f86.stdout
+error = runs/imagenetff81e61f86.stderr
+log = runs/imagenetff81e61f86.log
+request_cpus = 12
+request_gpus = 4
+request_memory = 50000
+request_disk = 4G
+queue

@@ -1,0 +1,10 @@
+executable = run_imagenet.sh
+arguments = Dec_NGN_imagenet_test true afbe1edf07 sgdm 0 0.01 true 0.0 0.0 xent
+output = runs/imagenetafbe1edf07.stdout
+error = runs/imagenetafbe1edf07.stderr
+log = runs/imagenetafbe1edf07.log
+request_cpus = 1
+request_gpus = 1
+request_memory = 50000
+request_disk = 4G
+queue

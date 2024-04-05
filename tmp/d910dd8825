@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_final_probably true d910dd8825 cifar10 res18 30 sgdm 0 128 10.0 true 0.0 0.0 0.999 not_interesting_option xent
+output = runs/d910dd8825.stdout
+error = runs/d910dd8825.stderr
+log = runs/d910dd8825.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

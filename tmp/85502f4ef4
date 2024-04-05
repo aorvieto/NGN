@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_VGG11_decay_lr_step_test true 85502f4ef4 cifar10 VGG11 30 adam 0 128 1e-05 true 0.0 0.9 0.999 not_interesting_option xent
+output = runs/85502f4ef4.stdout
+error = runs/85502f4ef4.stderr
+log = runs/85502f4ef4.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

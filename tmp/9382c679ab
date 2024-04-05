@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 True 9382c679ab cifar10 res18 30 sgdm 0 128 0.1 False 0.0001 0 0.999 not_interesting_option xent
+output = runs/9382c679ab.stdout
+error = runs/9382c679ab.stderr
+log = runs/9382c679ab.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

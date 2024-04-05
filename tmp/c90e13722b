@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_step_decay_and_wd true c90e13722b cifar10 res18 30 ngnm 1 128 10.0 true 0.0 0.0 0.999 not_interesting_option xent
+output = runs/c90e13722b.stdout
+error = runs/c90e13722b.stderr
+log = runs/c90e13722b.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

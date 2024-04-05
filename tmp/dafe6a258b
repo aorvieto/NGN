@@ -1,0 +1,10 @@
+executable = run_imagenet.sh
+arguments = Dec_NGN_imagenet_test2 true dafe6a258b adam 0 0.0001 true 0.0 0.9 xent
+output = runs/imagenetdafe6a258b.stdout
+error = runs/imagenetdafe6a258b.stderr
+log = runs/imagenetdafe6a258b.log
+request_cpus = 12
+request_gpus = 4
+request_memory = 50000
+request_disk = 4G
+queue

@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_final_probably true ade51265e4 cifar10 res18 30 ngnm 1 128 300.0 true 0.0 0.0 0.999 not_interesting_option xent
+output = runs/ade51265e4.stdout
+error = runs/ade51265e4.stderr
+log = runs/ade51265e4.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

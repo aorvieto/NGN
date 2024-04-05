@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_is_momentum_better_test true c540bfc3ab cifar10 res18 30 sgdm_torch 1 256 3 true 0.0 0.0 0.999 not_interesting_option xent
+output = runs/c540bfc3ab.stdout
+error = runs/c540bfc3ab.stderr
+log = runs/c540bfc3ab.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

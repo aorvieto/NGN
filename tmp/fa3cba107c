@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_final_probably true fa3cba107c cifar10 res18 30 ngnm 0 256 0.3 true 0.0 0.0 0.999 not_interesting_option xent
+output = runs/fa3cba107c.stdout
+error = runs/fa3cba107c.stderr
+log = runs/fa3cba107c.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

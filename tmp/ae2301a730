@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_stl10_CNN_no_decay_final true ae2301a730 stl10 CNN 50 sgdm 1 256 1 false 0.0 0.0 0.999 not_interesting_option xent
+output = runs/ae2301a730.stdout
+error = runs/ae2301a730.stderr
+log = runs/ae2301a730.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

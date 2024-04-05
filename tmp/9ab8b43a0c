@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_stl10_CNN_no_decay_final true 9ab8b43a0c stl10 CNN 50 ngnm 0 256 1 false 0.0 0.0 0.999 not_interesting_option xent
+output = runs/9ab8b43a0c.stdout
+error = runs/9ab8b43a0c.stderr
+log = runs/9ab8b43a0c.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

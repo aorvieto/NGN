@@ -1,7 +1,11 @@
+import argparse
+import sys
+import time
 import torch
 import wandb
+import pandas as pd
+import os
 import ast
-import time
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
@@ -10,38 +14,60 @@ from torchvision import datasets, transforms
 import wandb
 import random
 from utils import *
-from utils.torch_utils import get_grad_norm_squared, cosine_wa_lr
-from utils.sys_utils import dict_to_namespace
+from utils.torch_utils import get_grad_norm_squared, cosine_wa_lr, step_decay_lr
+from utils.sys_utils import dict_to_namespace, print_args, str2bool
 from models import *
-from models.cifar_resnet_vgg import ResNet18, ResNet34
+from models.cifar_resnet_vgg import ResNet18, ResNet34, vgg11_bn
 from models.small_networks import CIFARCNN2, CIFARCNN3, MNISTNet1, MNISTNet2, MNISTNet3, CIFARCNN1
+from models.model_svhn import svhn_model
+from models.model_STL10 import stl10_model
 
 
+def main():
+    arguments = sys.argv
+    print("Command-line arguments:", arguments)
 
-def run_config(use_wandb, gpu, project, dataset, architecture, seed, opt):
+    gpu = [0]
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--project', default='Dec 23', type=str)
+    parser.add_argument('--use_wandb', type=str2bool, nargs='?',const=True)
+    parser.add_argument('--uid', type=str)
+    parser.add_argument('--dataset', type=str)
+    parser.add_argument('--model', type=str)
+    parser.add_argument('--epochs', type=int)
+    parser.add_argument('--optimizer', type=str)
+    parser.add_argument('--seed', type=int)
+    parser.add_argument('--bs', type=int)
+    parser.add_argument('--lr', type=float)
+    parser.add_argument("--lr_decay", type=str2bool, nargs='?',const=True)
+    parser.add_argument('--wd', type=float)
+    parser.add_argument('--beta1', default=0, type=float)
+    parser.add_argument('--beta2', default=0.999, type=float)
+    parser.add_argument('--option', type=str)
+    args = parser.parse_args()
+
+    print_args(args)
 
     ########### Setting Up Seed ###########
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
 
     ########### Setting Up GPU ########### 
-    gpu_ids = ast.literal_eval(gpu)
-    torch.cuda.set_device(gpu_ids[0])
+    torch.cuda.set_device(gpu[0])
     device = 'cuda'
+    gpu_index = torch.cuda.current_device()
+    gpu_name = torch.cuda.get_device_name(gpu_index)
+    print(f"Using GPU {gpu_index}: {gpu_name}")
 
     ########### Setting Up wandb ########### 
-    config = opt
-    config['architecture']= architecture
-    config['dataset']= dataset
-    config['seed']=seed
-    if use_wandb:
-        run=wandb.init(project=project,config=config, dir="/wandb_tmp")
-    print(config)
-    opt = dict_to_namespace(opt)
+    if args.use_wandb:
+        run=wandb.init(project=args.project,config=vars(args), dir="/wandb_tmp")
+    print(vars(args))
 
     ########### Setup Data and Model ###########    
-    if dataset=="FMNIST":
+    if args.dataset=="FMNIST":
         subset = 5000
 
         #data
@@ -53,22 +79,55 @@ def run_config(use_wandb, gpu, project, dataset, architecture, seed, opt):
         subset = random.sample(range(train_dataset.data.shape[0]),subset)
         sample_ds = torch.utils.data.Subset(train_dataset, subset)
         sample_sampler = torch.utils.data.RandomSampler(sample_ds)
-        train_loader = torch.utils.data.DataLoader(sample_ds, sampler=sample_sampler, batch_size=opt.bs, num_workers=8, pin_memory=True, persistent_workers=True)
+        train_loader = torch.utils.data.DataLoader(sample_ds, sampler=sample_sampler, batch_size=args.bs, num_workers=8, pin_memory=True, persistent_workers=True)
 
         #testloader
-        validation_loader = torch.utils.data.DataLoader(dataset=validation_dataset, batch_size=opt.bs, shuffle=False, num_workers=8, pin_memory=True, persistent_workers=True)       
+        validation_loader = torch.utils.data.DataLoader(dataset=validation_dataset, batch_size=args.bs, shuffle=False, num_workers=8, pin_memory=True, persistent_workers=True)       
 
         #models
-        if architecture == "MLP1": 
-            model = torch.nn.DataParallel(MNISTNet1(),gpu_ids).cuda()
-        elif architecture == "MLP2":
-            model = torch.nn.DataParallel(MNISTNet2(),gpu_ids).cuda()
-        elif architecture == "MLP3":
-            model = torch.nn.DataParallel(MNISTNet3(),gpu_ids).cuda()
+        if args.model == "MLP1": 
+            model = torch.nn.DataParallel(MNISTNet1(),gpu).cuda()
+        elif args.model == "MLP2":
+            model = torch.nn.DataParallel(MNISTNet2(),gpu).cuda()
+        elif args.model == "MLP3":
+            model = torch.nn.DataParallel(MNISTNet3(),gpu).cuda()
         else: print("model not defined")
         criterion = nn.CrossEntropyLoss()
 
-    elif dataset=="cifar10":
+    elif args.dataset=="svhn":
+        transform_train = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        train_dataset = torchvision.datasets.SVHN(root='./data', split='train', download=True, transform=transform_train)
+        validation_dataset = torchvision.datasets.SVHN(root='./data', split='test', download=True, transform=transform_train)
+        train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=args.bs, shuffle=True, num_workers=2, pin_memory=True, persistent_workers=True)
+        validation_loader = torch.utils.data.DataLoader(dataset=validation_dataset, batch_size=args.bs, shuffle=False, num_workers=8, pin_memory=True, persistent_workers=True)       
+        if args.model == "CNN": 
+            model = torch.nn.DataParallel(svhn_model(n_channel=32),gpu).cuda() 
+        else: print("model not defined")
+        criterion = nn.CrossEntropyLoss()
+
+    elif args.dataset=="stl10":
+        transform_train=transforms.Compose([
+                            transforms.Pad(4),
+                            transforms.RandomCrop(96),
+                            transforms.RandomHorizontalFlip(),
+                            transforms.ToTensor(),
+                            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                        ])
+        transform_test=transforms.Compose([
+                            transforms.ToTensor(),
+                            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                        ])
+        train_dataset = datasets.STL10(root='./data', split='train', download=True, transform=transform_train)
+        validation_dataset = datasets.STL10(root='./data', split='test', download=True, transform=transform_test)
+        train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=args.bs, shuffle=True, num_workers=2, pin_memory=True, persistent_workers=True)
+        validation_loader = torch.utils.data.DataLoader(dataset=validation_dataset, batch_size=args.bs, shuffle=False, num_workers=8, pin_memory=True, persistent_workers=True)       
+        if args.model == "CNN": 
+            model = torch.nn.DataParallel(stl10_model(n_channel=32),gpu).cuda() 
+        else: print("model not defined")
+        criterion = nn.CrossEntropyLoss()            
+       
+
+    elif args.dataset=="cifar10":
 
         #data transforms
         transform_train = transforms.Compose([
@@ -88,32 +147,32 @@ def run_config(use_wandb, gpu, project, dataset, architecture, seed, opt):
         validation_dataset = torchvision.datasets.CIFAR10(root='./data', download=True, train=False, transform=transform_test)
         
         #trainloader subset
-        train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=opt.bs, shuffle=True, num_workers=2, pin_memory=True, persistent_workers=True)
+        train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=args.bs, shuffle=True, num_workers=2, pin_memory=True, persistent_workers=True)
 
         #testloader
-        validation_loader = torch.utils.data.DataLoader(dataset=validation_dataset, batch_size=opt.bs, shuffle=False, num_workers=8, pin_memory=True, persistent_workers=True)       
+        validation_loader = torch.utils.data.DataLoader(dataset=validation_dataset, batch_size=args.bs, shuffle=False, num_workers=8, pin_memory=True, persistent_workers=True)       
 
         #models
-        if architecture == "CNN1": 
-            model = torch.nn.DataParallel(CIFARCNN1(),gpu_ids).cuda()
-        elif architecture == "CNN2": 
-            model = torch.nn.DataParallel(CIFARCNN2(),gpu_ids).cuda()
-        elif architecture == "CNN3": 
-            model = torch.nn.DataParallel(CIFARCNN3(),gpu_ids).cuda()
-        elif architecture == "res18":
-            model = torch.nn.DataParallel(ResNet18(),gpu_ids).cuda()
-        elif architecture == "CIFAR10Res34":
-            model = torch.nn.DataParallel(ResNet34(),gpu_ids).cuda()
+        if args.model == "CNN1": 
+            model = torch.nn.DataParallel(CIFARCNN1(),gpu).cuda()
+        elif args.model == "CNN2": 
+            model = torch.nn.DataParallel(CIFARCNN2(),gpu).cuda()
+        elif args.model == "CNN3": 
+            model = torch.nn.DataParallel(CIFARCNN3(),gpu).cuda()
+        elif args.model == "VGG11":
+            model = torch.nn.DataParallel(vgg11_bn(),gpu).cuda()
+        elif args.model == "res18":
+            model = torch.nn.DataParallel(ResNet18(),gpu).cuda()
+        elif args.model == "CIFAR10Res34":
+            model = torch.nn.DataParallel(ResNet34(),gpu).cuda()
         else: 
             raise NotImplementedError("Model not defined")
         criterion = nn.CrossEntropyLoss() 
         
-    ########### Setup Writer Variables ###########  
-    results = {"train_loss_it":[], "grad_norm_squared_it":[], "effective_lr_it":[],"train_loss_ep":[], "test_loss_ep":[], "test_acc_ep":[], "train_acc_ep":[], "epoch_time":[]}    
    
     ##### iteration counter
     iteration = 0
-    total_steps = int(len(train_loader)*opt.ep)
+    total_steps = int(len(train_loader)*args.epochs)
 
     ########### Getting number of layers ###########      
     n_groups = 0
@@ -128,18 +187,22 @@ def run_config(use_wandb, gpu, project, dataset, architecture, seed, opt):
     print(f'Steps per epoch: {len(train_loader)}')
 
     ########### Init of Optimizers ###########      
+    avg_grad_1, avg_grad_2 = [], []
+    for p in model.parameters():
+        avg_grad_1.append(None)
+        avg_grad_2.append(None) 
+    if args.optimizer == 'sgdm_torch':
+        opt = torch.optim.SGD(model.parameters(), lr=args.lr, momentum = args.beta1, weight_decay= args.wd)
+        if args.lr_decay:
+            scheduler = torch.optim.lr_scheduler.StepLR(opt, step_size=10, gamma=0.1)
 
-    if opt.alg == 'sgdm':
-        optimizer = torch.optim.SGD(model.parameters(), lr=opt.lr, momentum = opt.beta1, weight_decay= opt.wd)
-        if opt.lr_decay:
-            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=total_steps, eta_min=0)
-    if opt.alg == 'ngnm':
-        avg_grad_1 = []
-        for p in model.parameters():
-            avg_grad_1.append(None)
+
+    df = [] #stats saved here
+    filename = args.model+'_'+args.dataset+'_'+args.optimizer+'_s'+str(args.seed)+'_lr'+str(args.lr)+'_decay'+str(args.lr_decay)+'_uid'+str(args.uid)+'.csv'
+    print('saving in'+str(filename))
 
 	########### Training ###########     
-    for epoch in range(opt.ep):
+    for epoch in range(args.epochs):
         start_time = time.time()
 
         ########### Saving stats every few epochs ###########         
@@ -165,24 +228,21 @@ def run_config(use_wandb, gpu, project, dataset, architecture, seed, opt):
             correct += pred.eq(target.data).cpu().sum()
         accuracy_test = 100. * correct.to(torch.float32) / len(validation_loader.dataset)
 
-        #saving stats
-        results["train_loss_it"].append(train_loss)
-        results["train_loss_ep"].append(train_loss)
-        results["train_acc_ep"].append(accuracy_train)
-        results["test_loss_ep"].append(test_loss)
-        results["test_acc_ep"].append(accuracy_test)
-
         #saving to wandb
-        if use_wandb:
+        if args.use_wandb:
             wandb.log({"train_loss":train_loss, "train_acc":accuracy_train,"test_loss":test_loss,"test_acc":accuracy_test}, commit=False)
 
         print('Epoch {}: Train L: {:.4f}, TrainAcc: {:.2f}, Test L: {:.4f}, TestAcc: {:.2f} \n'.format(epoch, train_loss, accuracy_train, test_loss, accuracy_test))
 
         ###########  Training Loop ########### 
+    
         model.train()
         for _, batch in enumerate(train_loader):
 
-            model.zero_grad() 
+            if args.optimizer == 'sgdm_torch':
+                opt.zero_grad() 
+            else:
+                model.zero_grad() 
             ###########  Backprop  ###########
             data, target = batch[0].to(device),batch[1].to(device)
 
@@ -193,21 +253,41 @@ def run_config(use_wandb, gpu, project, dataset, architecture, seed, opt):
             # Getting gradient norm squared
             with torch.no_grad():
                 grad_norm_squared = get_grad_norm_squared(model)
-                if use_wandb:
+                if args.use_wandb:
                     wandb.log({"grad_norm_squared":grad_norm_squared}, commit=False)
-                results["grad_norm_squared_it"].append(grad_norm_squared)
-                results["train_loss_it"].append(loss.item())
 
             ###########  Optimizer update for standard methods  ########### 
-            if opt.alg == 'sgdm':
-                results["effective_lr_it"].append(optimizer.param_groups[0]["lr"])
-                if use_wandb:
-                    wandb.log({"effective_lr":optimizer.param_groups[0]["lr"]}, commit=False)
-                optimizer.step()
-                if opt.lr_decay:
-                    scheduler.step()
+            if args.optimizer == 'sgdm_torch':
+                preconditioner = opt.param_groups[0]["lr"]
+                if args.use_wandb:
+                    wandb.log({"effective_lr":preconditioner}, commit=False)
+                    df.append({'model': args.model, 'data': args.dataset, 'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'epoch': epoch, 'lr': preconditioner})
+                opt.step()
 
-            if opt.alg == 'ngnm':
+            elif args.optimizer == 'sgdm':
+                with torch.no_grad(): 
+                    #updating grad moving average 
+                    norm_avg_grad_squared = 0
+                    for p_idx, p in enumerate(model.parameters()):
+                        if avg_grad_1[p_idx]==None:
+                            avg_grad_1[p_idx] =  p.grad
+                        avg_grad_1[p_idx] = args.beta1 * avg_grad_1[p_idx] + (1-args.beta1)*p.grad
+                        norm_avg_grad_squared = norm_avg_grad_squared + avg_grad_1[p_idx].detach().data.norm(2).item()**2
+                    #updating parameters
+                    if args.lr_decay:
+                        #sigma_curr = cosine_wa_lr(args.lr, iteration, total_steps, 0) 
+                        sigma_curr = step_decay_lr(args.lr, epoch, [10,20], 0.1)
+                    else:
+                        sigma_curr = args.lr
+                    preconditioner = sigma_curr
+                    for p_idx, p in enumerate(model.parameters()):
+                        new_val = p - preconditioner * (avg_grad_1[p_idx] - args.wd * p)
+                        p.copy_(new_val)
+                    if args.use_wandb:
+                        wandb.log({"effective_lr":preconditioner}, commit=False)
+                        df.append({'model': args.model, 'data': args.dataset, 'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'epoch': epoch, 'lr': preconditioner})
+
+            elif args.optimizer == 'ngnm':
 
                 with torch.no_grad(): 
                     #updating grad moving average 
@@ -215,31 +295,70 @@ def run_config(use_wandb, gpu, project, dataset, architecture, seed, opt):
                     for p_idx, p in enumerate(model.parameters()):
                         if avg_grad_1[p_idx]==None:
                             avg_grad_1[p_idx] =  p.grad
-                        avg_grad_1[p_idx] = opt.beta1 * avg_grad_1[p_idx] + (1-opt.beta1)*p.grad
+                        avg_grad_1[p_idx] = args.beta1 * avg_grad_1[p_idx] + (1-args.beta1)*p.grad
                         norm_avg_grad_squared = norm_avg_grad_squared + avg_grad_1[p_idx].detach().data.norm(2).item()**2
 
                     #updating parameters
-                    if opt.lr_decay:
-                        sigma_curr = cosine_wa_lr(opt.lr, iteration, total_steps, 0) 
+                    if args.lr_decay:
+                        #sigma_curr = cosine_wa_lr(args.lr, iteration, total_steps, 0) 
+                        sigma_curr = step_decay_lr(args.lr, epoch, [10,20], 0.1)
                     else:
-                        sigma_curr = opt.lr
+                        sigma_curr = args.lr
                     preconditioner = sigma_curr/(1+sigma_curr*norm_avg_grad_squared/(2*loss.item()))
-                    results["effective_lr_it"].append(preconditioner)
                     for p_idx, p in enumerate(model.parameters()):
-                        new_val = p - preconditioner * (avg_grad_1[p_idx]+opt.wd*p)
+                        new_val = p - preconditioner * (avg_grad_1[p_idx] - args.wd * p)
                         p.copy_(new_val)
-                    if use_wandb:
+                    if args.use_wandb:
                         wandb.log({"effective_lr":preconditioner}, commit=False)
+                        df.append({'model': args.model, 'data': args.dataset, 'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'epoch': epoch, 'lr': preconditioner})
 
+            elif args.optimizer == 'adam': #example of writing an optimizer
+                with torch.no_grad(): # very important
+                    #standard adam parameters
+                    if args.lr_decay:
+                        #sigma_curr = cosine_wa_lr(args.lr, iteration, total_steps, 0) 
+                        sigma_curr = step_decay_lr(args.lr, epoch, [10,20], 0.1)
+                    else:
+                        sigma_curr = args.lr
+
+                    # parameters have to be updated with a fpr loop (this is fast)
+                    for p_idx, p in enumerate(model.parameters()):
+                        grad_p = p.grad
+                        square_grad_p = grad_p**2
+                        if None in (avg_grad_1[p_idx], avg_grad_2[p_idx]): #init
+                            avg_grad_1[p_idx] =  grad_p
+                            avg_grad_2[p_idx] = square_grad_p
+                        avg_grad_2[p_idx] = args.beta2 * avg_grad_2[p_idx] + (1-args.beta2)*square_grad_p
+                        avg_grad_1[p_idx] = args.beta1 * avg_grad_1[p_idx] + (1-args.beta1)*grad_p
+
+                        #parameter update
+                        preconditioner = 1/(1e-8 + avg_grad_2[p_idx].sqrt())
+                        new_val = p - sigma_curr * preconditioner * avg_grad_1[p_idx]
+                        p.copy_(new_val)
+                    if args.use_wandb:
+                        #wandb.log({"effective_lr":preconditioner}, commit=False)
+                        df.append({'net': args.model, 'data': args.dataset, 'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'epoch': epoch})
+            else:
+                raise ValueError('Optimizer not defined')
             iteration = iteration +1
+            
+        if args.optimizer == 'sgdm_torch':
+            if args.lr_decay:
+                scheduler.step() 
+
         epoch_time = time.time()-start_time
-        results["epoch_time"].append(epoch_time)
-        if use_wandb:
+        if args.use_wandb:
             wandb.log({"epoch_time":epoch_time})
+            pd.DataFrame(df).to_csv(os.path.join('results', filename)) #backup
+
             
     ########### Closing Writer ###########  
-    if use_wandb:
+    if args.use_wandb:
         run.finish()
         wandb.finish()
 
-    return results
+    return df
+
+
+if __name__ == '__main__':
+    main()

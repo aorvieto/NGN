@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_final_no_decay_front true 5fb75ebadb cifar10 res18 50 ngnm 2 128 10 false 0.0 0.0 0.999 not_interesting_option xent
+output = runs/5fb75ebadb.stdout
+error = runs/5fb75ebadb.stderr
+log = runs/5fb75ebadb.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

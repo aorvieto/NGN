@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_VGG11 true e01761bf8b cifar10 VGG11 30 ngnm 0 128 3.0 false 0.0 0 0.999 not_interesting_option xent
+output = runs/e01761bf8b.stdout
+error = runs/e01761bf8b.stderr
+log = runs/e01761bf8b.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

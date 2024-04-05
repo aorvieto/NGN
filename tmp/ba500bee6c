@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_VGG11 true ba500bee6c cifar10 VGG11 30 ngnm 0 128 0.03 true 0.0 0.0 0.999 not_interesting_option xent
+output = runs/ba500bee6c.stdout
+error = runs/ba500bee6c.stderr
+log = runs/ba500bee6c.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

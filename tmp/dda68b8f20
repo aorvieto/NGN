@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_svhn_CNN_no_decay_final true dda68b8f20 svhn CNN 50 sgdm 1 512 0.001 false 0.0 0.0 0.999 not_interesting_option xent
+output = runs/dda68b8f20.stdout
+error = runs/dda68b8f20.stderr
+log = runs/dda68b8f20.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

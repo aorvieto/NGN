@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_svhn_CNN_no_decay_final true f43790e610 svhn CNN 50 ngnm 2 512 3 false 0.0 0.0 0.999 not_interesting_option xent
+output = runs/f43790e610.stdout
+error = runs/f43790e610.stderr
+log = runs/f43790e610.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

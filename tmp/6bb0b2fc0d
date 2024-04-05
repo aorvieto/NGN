@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 true 6bb0b2fc0d cifar10 res18 30 ngnm 1 128 0.1 true 0.0 0 0.999 lr_decay_direct xent
+output = runs/6bb0b2fc0d.stdout
+error = runs/6bb0b2fc0d.stderr
+log = runs/6bb0b2fc0d.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

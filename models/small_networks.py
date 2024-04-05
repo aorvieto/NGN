@@ -29,10 +29,10 @@ class MNISTNet1(nn.Module):
 class MNISTNet2(nn.Module):
     def __init__(self):
         super(MNISTNet2, self).__init__()
-        self.fc1 = nn.Linear(28*28, 5000)
-        self.fc2 = nn.Linear(5000, 5000)
-        self.fc3 = nn.Linear(5000, 5000)
-        self.fc4 = nn.Linear(5000, 10)
+        self.fc1 = nn.Linear(28*28, 1000)
+        self.fc2 = nn.Linear(1000, 1000)
+        self.fc3 = nn.Linear(1000, 1000)
+        self.fc4 = nn.Linear(1000, 10)
 
     def forward(self, x):
         x = x.view(-1, 28*28)

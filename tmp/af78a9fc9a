@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 true af78a9fc9a cifar10 res18 30 ngnm 1 128 1 false 0.0 0 0.999 not_interesting_option xent
+output = runs/af78a9fc9a.stdout
+error = runs/af78a9fc9a.stderr
+log = runs/af78a9fc9a.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

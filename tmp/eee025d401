@@ -1,0 +1,10 @@
+executable = run_job.sh
+arguments = test MPI True eee025d401 cifar10 res18 20 sgdm 0 128 0.01 True 0.0001 0 0.999 not interesting option xent
+output = runs/eee025d401.stdout
+error = runs/eee025d401.stderr
+log = runs/eee025d401.log
+request_cpus = 1
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

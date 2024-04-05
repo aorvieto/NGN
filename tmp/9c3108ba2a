@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_step_decay_and_wd true 9c3108ba2a cifar10 res18 30 ngnm 0 128 0.03 true 0.0 0.0 0.999 not_interesting_option xent
+output = runs/9c3108ba2a.stdout
+error = runs/9c3108ba2a.stderr
+log = runs/9c3108ba2a.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_CNN3 true f4f0b98b7e cifar10 CNN3 200 sgdm 0 1024 0.3 false 0.0 0 0.999 not_interesting_option xent
+output = runs/f4f0b98b7e.stdout
+error = runs/f4f0b98b7e.stderr
+log = runs/f4f0b98b7e.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

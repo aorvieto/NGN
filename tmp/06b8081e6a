@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_svhn_CNN_test true 06b8081e6a svhn CNN 50 adam 0 128 3e-05 false 0.0 0.9 0.999 not_interesting_option xent
+output = runs/06b8081e6a.stdout
+error = runs/06b8081e6a.stderr
+log = runs/06b8081e6a.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

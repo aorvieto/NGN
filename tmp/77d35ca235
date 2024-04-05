@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_svhn_CNN_no_decay_final true 77d35ca235 svhn CNN 50 adam 0 512 0.0001 false 0.0 0.9 0.999 not_interesting_option xent
+output = runs/77d35ca235.stdout
+error = runs/77d35ca235.stderr
+log = runs/77d35ca235.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

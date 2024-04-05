@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 true b775f9010a cifar10 res18 30 ngnm 1 128 0.03 true 0.0 0 0.999 lr_decay_direct xent
+output = runs/b775f9010a.stdout
+error = runs/b775f9010a.stderr
+log = runs/b775f9010a.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

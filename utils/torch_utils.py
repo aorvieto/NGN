@@ -31,3 +31,11 @@ def cosine_wa_lr(target, global_step, total_steps, warmup_steps):
 		warmup_lr = np.array(target * (global_step / warmup_steps))
 		learning_rate = np.where(global_step < warmup_steps, warmup_lr, cosine_lr)
 		return learning_rate.item()
+
+def step_decay_lr(initial_lr, epoch, decay_epochs, factor):
+    decay_factor = 1.0
+    for i in range(len(decay_epochs)):
+        if epoch>decay_epochs[i]:
+            decay_factor = factor * decay_factor
+    learning_rate = initial_lr * decay_factor
+    return learning_rate

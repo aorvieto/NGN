@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_VGG11_decay_no_decay_momentum true 323c8cbc78 cifar10 VGG11 30 ngnm 1 128 0.01 false 0.0 0.9 0.999 not_interesting_option xent
+output = runs/323c8cbc78.stdout
+error = runs/323c8cbc78.stderr
+log = runs/323c8cbc78.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

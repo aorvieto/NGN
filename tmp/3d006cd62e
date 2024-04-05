@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_res18_final_no_decay_front true 3d006cd62e cifar10 res18 50 sgdmm 0 128 0.1 false 0.0 0.0 0.999 not_interesting_option xent
+output = runs/3d006cd62e.stdout
+error = runs/3d006cd62e.stderr
+log = runs/3d006cd62e.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

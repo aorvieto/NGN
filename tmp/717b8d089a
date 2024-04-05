@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_FMNIST_MLP2 true 717b8d089a FMNIST MLP2 5000 ngnm 0 5000 1.0 false 0.0 0 0.999 not_interesting_option xent
+output = runs/717b8d089a.stdout
+error = runs/717b8d089a.stderr
+log = runs/717b8d089a.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

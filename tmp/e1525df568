@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_stl10_CNN_no_decay_final true e1525df568 stl10 CNN 50 adam 0 256 3e-05 false 0.0 0.9 0.999 not_interesting_option xent
+output = runs/e1525df568.stdout
+error = runs/e1525df568.stderr
+log = runs/e1525df568.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

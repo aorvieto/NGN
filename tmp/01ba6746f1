@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar10_CNN2 true 01ba6746f1 cifar10 CNN2 100 sgdm 1 64 0.01 false 0.0 0 0.999 not_interesting_option xent
+output = runs/01ba6746f1.stdout
+error = runs/01ba6746f1.stderr
+log = runs/01ba6746f1.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

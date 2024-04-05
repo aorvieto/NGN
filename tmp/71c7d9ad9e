@@ -1,0 +1,10 @@
+executable = run_imagenet.sh
+arguments = 
+output = runs/imagenet71c7d9ad9e.stdout
+error = runs/imagenet71c7d9ad9e.stderr
+log = runs/imagenet71c7d9ad9e.log
+request_cpus = 16
+request_gpus = 4
+request_memory = 50000
+request_disk = 4G
+queue

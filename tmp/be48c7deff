@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_svhn_CNN_no_decay_final true be48c7deff svhn CNN 50 ngnm 1 512 0.1 false 0.0 0.0 0.999 not_interesting_option xent
+output = runs/be48c7deff.stdout
+error = runs/be48c7deff.stderr
+log = runs/be48c7deff.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 true dc61f1659c cifar10 res18 30 sgdm 1 128 30 false 0.0 0 0.999 not_interesting_option xent
+output = runs/dc61f1659c.stdout
+error = runs/dc61f1659c.stderr
+log = runs/dc61f1659c.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue

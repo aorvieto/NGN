@@ -1,0 +1,10 @@
+executable = run.sh
+arguments = Dec_NGN_cifar_res18 true af21d32937 cifar10 res18 30 ngnm 2 128 3.0 true 0.0 0 0.999 lr_decay_direct xent
+output = runs/af21d32937.stdout
+error = runs/af21d32937.stderr
+log = runs/af21d32937.log
+request_cpus = 8
+request_gpus = 1
+request_memory = 10000
+request_disk = 1G
+queue
