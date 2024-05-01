@@ -32,26 +32,40 @@ def run_job(uid, bid, d):
 
 
 if __name__ == '__main__':
-    project = 'Dec_NGN_imagenet_test2'
+    project = 'Dec_NGN_MLP_final'
     use_wandb = 'true'
-    optimizer = ['adagrad']
-    seed = [0, 1, 2]
-    lr = [1000, 3000, 10000]
-    lr_decay = ['true']
+    dataset = 'FMNIST'
+    model = 'MLP2'
+    epochs = [300]
+    optimizer = ['adam']
+    seed = [0,1,2]
+    bs = [128]
+    #lr = [3]
+    #lr = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30] #, 10, 30, 100, 300, 1000
+    lr = [0.00003, 0.0001, 0.0003, 0.001]
+    #lr = [0.00001, 0.00003, 0.0001, 0.0003, 0.001, 0.003, 0.01, 0.03]
+
+    lr_decay = ['false']
     wd = [0.0]
     beta1 = [0.0]
+    beta2 = [0.999]
+    option = ['not_interesting_option']
 
-    for run in itertools.product(*[optimizer, seed, lr, lr_decay, wd, beta1]):
+    #python train.py --project $1 --use_wandb $2 --uid $3 --dataset $4 --model $5 --epochs $6 --optimizer $7 --seed $8 --bs $9 --lr $10 --lr_decay $11 --wd $12 --beta1 $13 --beta2 $14 --option $15
+
+
+    for run in itertools.product(*[epochs, optimizer, seed, bs, lr, lr_decay, wd, beta1, beta2, option]):
         uid = uuid.uuid4().hex[:10]
-        arguments = f"{project} {use_wandb} {uid} {run[0]} {run[1]} {run[2]} {run[3]} {run[4]} {run[5]} xent"
-        output = f"runs/imagenet{uid}.stdout"
-        error = f"runs/imagenet{uid}.stderr"
-        log = f"runs/imagenet{uid}.log"
-        cpus = 12
-        gpus = 4
-        memory = 50000
-        disk = "4G"
-        executable = "run_imagenet.sh"
+        arguments = f"{project} {use_wandb} {uid} {dataset} {model} {run[0]} {run[1]} {run[2]} {run[3]} {run[4]} {run[5]} {run[6]} {run[7]} {run[8]} {run[9]} xent"
+        output = f"runs/{uid}.stdout"
+        error = f"runs/{uid}.stderr"
+        log = f"runs/{uid}.log"
+        cpus = 8
+        gpus = 1
+        memory = 10000
+        disk = "1G"
+        executable = "run.sh"
+
         try:
             content = make_submisison_file_content(executable, arguments, output, error, log, cpus, gpus, memory, disk)
             run_job(uid, 15, content)

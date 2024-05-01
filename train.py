@@ -6,6 +6,7 @@ import wandb
 import pandas as pd
 import os
 import ast
+import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
@@ -188,6 +189,7 @@ def main():
 
     ########### Init of Optimizers ###########      
     avg_grad_1, avg_grad_2 = [], []
+    grad_norm_squared_sum = 0
     for p in model.parameters():
         avg_grad_1.append(None)
         avg_grad_2.append(None) 
@@ -312,6 +314,54 @@ def main():
                         wandb.log({"effective_lr":preconditioner}, commit=False)
                         df.append({'model': args.model, 'data': args.dataset, 'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'epoch': epoch, 'lr': preconditioner})
 
+            elif args.optimizer == 'sps':
+
+                with torch.no_grad(): 
+                    #updating grad moving average 
+                    norm_avg_grad_squared = 0
+                    for p_idx, p in enumerate(model.parameters()):
+                        if avg_grad_1[p_idx]==None:
+                            avg_grad_1[p_idx] =  p.grad
+                        avg_grad_1[p_idx] = args.beta1 * avg_grad_1[p_idx] + (1-args.beta1)*p.grad
+                        norm_avg_grad_squared = norm_avg_grad_squared + avg_grad_1[p_idx].detach().data.norm(2).item()**2
+
+                    #updating parameters
+                    if args.lr_decay:
+                        sigma_curr = step_decay_lr(args.lr, epoch, [10,20], 0.1)
+                    else:
+                        sigma_curr = args.lr
+                    preconditioner =  np.min([sigma_curr, loss.item()/norm_avg_grad_squared])
+                    for p_idx, p in enumerate(model.parameters()):
+                        new_val = p - preconditioner * (avg_grad_1[p_idx] - args.wd * p)
+                        p.copy_(new_val)
+                    if args.use_wandb:
+                        wandb.log({"effective_lr":preconditioner}, commit=False)
+                        df.append({'model': args.model, 'data': args.dataset, 'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'epoch': epoch, 'lr': preconditioner})
+
+            elif args.optimizer == 'adagrad':
+
+                with torch.no_grad(): 
+                    #updating grad moving average 
+                    norm_avg_grad_squared = 0
+                    for p_idx, p in enumerate(model.parameters()):
+                        if avg_grad_1[p_idx]==None:
+                            avg_grad_1[p_idx] =  p.grad
+                        avg_grad_1[p_idx] = args.beta1 * avg_grad_1[p_idx] + (1-args.beta1)*p.grad
+                        norm_avg_grad_squared = norm_avg_grad_squared + avg_grad_1[p_idx].detach().data.norm(2).item()**2
+                    if args.lr_decay:
+                        sigma_curr = step_decay_lr(args.lr, epoch, [10,20], 0.1)
+                    else:
+                        sigma_curr = args.lr
+                    grad_norm_squared_sum = grad_norm_squared_sum + norm_avg_grad_squared
+                    preconditioner =  sigma_curr/(np.sqrt(1e-2+grad_norm_squared_sum))
+                    for p_idx, p in enumerate(model.parameters()):
+                        new_val = p - preconditioner * (avg_grad_1[p_idx] - args.wd * p)
+                        p.copy_(new_val)
+                    if args.use_wandb:
+                        wandb.log({"effective_lr":preconditioner}, commit=False)
+                        df.append({'model': args.model, 'data': args.dataset, 'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'epoch': epoch, 'lr': preconditioner})
+
+
             elif args.optimizer == 'adam': #example of writing an optimizer
                 with torch.no_grad(): # very important
                     #standard adam parameters
@@ -357,7 +407,7 @@ def main():
         run.finish()
         wandb.finish()
 
-    return df
+    return None
 
 
 if __name__ == '__main__':

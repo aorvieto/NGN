@@ -32,22 +32,22 @@ def run_job(uid, bid, d):
 
 
 if __name__ == '__main__':
-    project = 'Dec_NGN_cifar10_res18_final_no_decay_front'
+    project = 'Dec_NGN_MLP_final'
     use_wandb = 'true'
-    dataset = 'cifar10'
-    model = 'res18'
-    epochs = [50]
-    optimizer = ['ngnm']
-    seed = [0]
+    dataset = 'FMNIST'
+    model = 'MLP2'
+    epochs = [300]
+    optimizer = ['adam']
+    seed = [0,1,2]
     bs = [128]
-    lr = [3]
-    #lr = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30]
-    #lr = [0.0003, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1]
+    #lr = [3]
+    #lr = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30] #, 10, 30, 100, 300, 1000
+    lr = [0.00003, 0.0001, 0.0003, 0.001, 0.003, 0.01]
     #lr = [0.00001, 0.00003, 0.0001, 0.0003, 0.001, 0.003, 0.01, 0.03]
 
     lr_decay = ['false']
     wd = [0.0]
-    beta1 = [0.0]
+    beta1 = [0.9]
     beta2 = [0.999]
     option = ['not_interesting_option']
 

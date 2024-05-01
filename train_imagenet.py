@@ -1,6 +1,8 @@
 import argparse
 import os
 import random
+import pandas as pd
+import numpy as np
 import shutil
 import time
 import warnings
@@ -9,6 +11,7 @@ import wandb
 from utils.sys_utils import dict_to_namespace, print_args, str2bool
 from enum import Enum
 import torch
+import numpy as np
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import torch.multiprocessing as mp
@@ -141,6 +144,11 @@ def main():
         # Simply call main_worker function
         main_worker(args.gpu, ngpus_per_node, args)
 
+    ########### Closing Writer ###########  
+    #if args.use_wandb:
+    #    run.finish()
+    #    wandb.finish()
+
 
 def main_worker(gpu, ngpus_per_node, args):
     global best_acc1
@@ -267,9 +275,15 @@ def main_worker(gpu, ngpus_per_node, args):
     # optimizer state
     optimizer_state = {}
     optimizer_state['avg_grad_1'], optimizer_state['avg_grad_2'] = [], []
+    optimizer_state['grad_norm_squared_sum']=0
     for p in model.parameters():
         optimizer_state['avg_grad_1'].append(None)
         optimizer_state['avg_grad_2'].append(None)
+
+    # initializing saver
+    df = [] #stats saved here
+    filename = 'ResNet50_Imagenet_'+args.optimizer+'_s'+str(args.seed)+'_lr'+str(args.lr)+'_decay'+str(args.lr_decay)+'_uid'+str(args.uid)+'.csv'
+    print('saving in'+str(filename))
 
     print("=> starting to train")
     for epoch in range(args.start_epoch, args.epochs):
@@ -278,7 +292,8 @@ def main_worker(gpu, ngpus_per_node, args):
             train_sampler.set_epoch(epoch)
 
         # train for one epoch
-        loss_avg, optimizer_state = train(train_loader, model, criterion, optimizer_state, epoch, device, args)
+        loss_avg, optimizer_state, df = train(train_loader, model, criterion, optimizer_state, epoch, device, args, df)
+        pd.DataFrame(df).to_csv(os.path.join('results', filename)) #backup
 
         # evaluate on validation set
         acc1 = validate(val_loader, model, criterion, args)
@@ -293,13 +308,10 @@ def main_worker(gpu, ngpus_per_node, args):
             wandb.log({"train_loss":loss_avg, "top1 test acc":acc1})
         print('LOGGED: Epoch {}: Train L: {:.4f}, TestAcc: {:.2f} \n'.format(epoch, loss_avg, acc1))
 
-    ########### Closing Writer ###########  
-    if args.use_wandb:
-        run.finish()
-        wandb.finish()
 
 
-def train(train_loader, model, criterion, optimizer_state, epoch, device, args):
+
+def train(train_loader, model, criterion, optimizer_state, epoch, device, args, df):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
@@ -368,6 +380,7 @@ def train(train_loader, model, criterion, optimizer_state, epoch, device, args):
                     p.copy_(new_val)
                 if args.use_wandb:
                     wandb.log({"effective_lr":preconditioner}, commit=False)
+                    df.append({'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'lr': preconditioner})
 
         elif args.optimizer == 'ngnm':
             with torch.no_grad(): 
@@ -383,7 +396,40 @@ def train(train_loader, model, criterion, optimizer_state, epoch, device, args):
                     p.copy_(new_val)
                 if args.use_wandb:
                     wandb.log({"effective_lr":preconditioner}, commit=False)
-    
+                    df.append({'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'lr': preconditioner})
+
+        elif args.optimizer == 'sps':
+
+            with torch.no_grad(): 
+                if args.lr_decay:
+                    sigma_curr = step_decay_lr(args.lr, epoch, [10,20], 0.1)
+                else:
+                    sigma_curr = args.lr
+                norm_grad_squared = get_grad_norm_squared(model)
+                preconditioner =  np.min([sigma_curr, loss.item()/norm_grad_squared])
+                for p_idx, p in enumerate(model.parameters()):
+                    new_val = p - preconditioner * (p.grad - args.wd * p)
+                    p.copy_(new_val)
+                if args.use_wandb:
+                    wandb.log({"effective_lr":preconditioner}, commit=False)
+                    df.append({'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'lr': preconditioner})
+
+        elif args.optimizer == 'adagrad':
+            with torch.no_grad(): 
+                if args.lr_decay:
+                    sigma_curr = step_decay_lr(args.lr, epoch, [10,20], 0.1)
+                else:
+                    sigma_curr = args.lr
+                norm_grad_squared = get_grad_norm_squared(model)
+                optimizer_state['grad_norm_squared_sum'] = optimizer_state['grad_norm_squared_sum'] + norm_grad_squared
+                preconditioner =  sigma_curr/(np.sqrt(1e-2+optimizer_state['grad_norm_squared_sum']))
+                for p_idx, p in enumerate(model.parameters()):
+                    new_val = p - preconditioner * (p.grad - args.wd * p)
+                    p.copy_(new_val)
+                if args.use_wandb:
+                    wandb.log({"effective_lr":preconditioner}, commit=False)
+                    df.append({'opt':args.optimizer, 'seed': args.seed, 'base_lr': args.lr, 'decay_lr': args.lr_decay, 'loss': loss.item(), 'lr': preconditioner})
+
 
         elif args.optimizer == 'adam': #example of writing an optimizer
             with torch.no_grad(): # very important
@@ -418,7 +464,7 @@ def train(train_loader, model, criterion, optimizer_state, epoch, device, args):
         if i % args.print_freq == 0:
             progress.display(i + 1)
 
-    return loss_sum/iteration, optimizer_state
+    return loss_sum/iteration, optimizer_state, df
 
 
 def validate(val_loader, model, criterion, args):
